@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[MODEL_NAME] | Services</title>
+    <meta name="description" content="Explore the services offered by [MODEL_NAME] - exclusive content, experiences, and more.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+    <!-- Age Verification Modal -->
+    <div id="age-modal" class="age-modal">
+        <div class="age-modal-content">
+            <h2>Age Verification</h2>
+            <p>This website contains content intended for adults only.</p>
+            <p>Please confirm you are 18 years or older to continue.</p>
+            <div class="age-modal-buttons">
+                <button id="age-confirm" class="btn btn-primary">I am 18+</button>
+                <button id="age-decline" class="btn btn-secondary">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Modal -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <span class="modal-close">&times;</span>
+
+            <!-- Tab switcher -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form-container" class="auth-form-container">
+                <h2>Login to Continue</h2>
+                <form id="login-form">
+                    <input type="hidden" name="csrf_token" id="login-csrf-token">
+                    <div class="form-group">
+                        <label for="login-username">Username or Email</label>
+                        <input type="text" name="username" id="login-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" name="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <div class="form-message"></div>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form-container" class="auth-form-container hidden">
+                <h2>Create Account</h2>
+                <form id="register-form">
+                    <input type="hidden" name="csrf_token" id="register-csrf-token">
+                    <div class="form-group">
+                        <label for="register-username">Username</label>
+                        <input type="text" name="username" id="register-username" required pattern="[a-zA-Z0-9_-]{3,50}" title="3-50 characters, letters, numbers, underscore, hyphen only">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" name="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password (min 8 characters)</label>
+                        <input type="password" name="password" id="register-password" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-dob">Date of Birth (must be 18+)</label>
+                        <input type="date" name="date_of_birth" id="register-dob" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                    <div class="form-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paywall Modal -->
+    <div id="paywall-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <span class="modal-close">&times;</span>
+            <h2>Premium Access Required</h2>
+            <p>Purchase one-time access to unlock all exclusive content</p>
+            <div class="paywall-price">$19.99</div>
+            <p class="paywall-description">Lifetime access • All pages & content • Gallery & videos • Future updates</p>
+            <button id="purchase-access-btn" class="btn btn-primary btn-large">
+                Purchase Full Access
+            </button>
+            <p class="paywall-note">Secure payment powered by Stripe</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">[MODEL_NAME]</a>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="platforms.html" class="nav-link">Platforms</a></li>
+                <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+                <li><a href="book.html" class="nav-link">Book</a></li>
+                <li><a href="etiquette.html" class="nav-link">Etiquette</a></li>
+                <li id="show-login-btn" class="hidden"><button class="btn btn-secondary nav-login-btn" onclick="authManager.showAuthModal('login')">Login</button></li>
+                <li id="user-menu" class="user-menu hidden">
+                    <span id="username-display" class="username-display"></span>
+                    <button id="logout-btn" class="btn btn-secondary btn-small">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Services Section -->
+    <section id="services" class="about section">
+        <div class="container">
+            <div class="about-content" style="grid-template-columns: 1fr;">
+                <div class="about-text reveal-delay" style="max-width: 100%;">
+                    <h2 class="section-title" style="text-align: center;">Services & Rates</h2>
+                    <div class="title-underline" style="margin: 0 auto;"></div>
+
+                    <p style="margin-top: var(--spacing-md); margin-bottom: var(--spacing-xl); color: rgba(255, 255, 255, 0.85); text-align: center; font-size: 1.1rem; font-style: italic; max-width: 800px; margin-left: auto; margin-right: auto;">
+                        Quality over quantity. I prefer meaningful connections with discerning gentlemen who value sophistication, discretion, and authentic companionship. My rates reflect the premium experience I provide.
+                    </p>
+
+                    <!-- Companionship Rates -->
+                    <h3 style="margin-top: var(--spacing-xl); color: var(--accent-gold); font-size: 1.8rem; text-align: center; margin-bottom: var(--spacing-md);">Companionship Rates</h3>
+
+                    <!-- Service Card 1 -->
+                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; transition: all 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--spacing-sm); flex-wrap: wrap;">
+                            <h4 style="color: var(--accent-gold); font-size: 1.4rem; margin: 0;">1 Hour Rendezvous</h4>
+                            <span style="color: var(--accent-gold); font-size: 1.3rem; font-weight: 600;">$[PRICE_1]</span>
+                        </div>
+                        <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.7; margin: 0;">
+                            Perfect for a brief escape. Ideal for first-time meetings, quick connections, or when time is limited. Includes intimate conversation and companionship in a private, comfortable setting.
+                        </p>
+                    </div>
+
+                    <!-- Service Card 2 -->
+                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; transition: all 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--spacing-sm); flex-wrap: wrap;">
+                            <h4 style="color: var(--accent-gold); font-size: 1.4rem; margin: 0;">2 Hour Experience</h4>
+                            <span style="color: var(--accent-gold); font-size: 1.3rem; font-weight: 600;">$[PRICE_2]</span>
+                        </div>
+                        <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.7; margin: 0;">
+                            A more relaxed pace allowing for genuine connection. Enjoy unhurried conversation, perhaps a drink together, and the luxury of time without the pressure of the clock. My most popular option.
+                        </p>
+                    </div>
+
+                    <!-- Service Card 3 -->
+                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; transition: all 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--spacing-sm); flex-wrap: wrap;">
+                            <h4 style="color: var(--accent-gold); font-size: 1.4rem; margin: 0;">3-4 Hour Dinner Date</h4>
+                            <span style="color: var(--accent-gold); font-size: 1.3rem; font-weight: 600;">$[PRICE_3]</span>
+                        </div>
+                        <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.7; margin: 0;">
+                            The ultimate dinner date experience. Time for a proper meal at a fine restaurant, meaningful conversation, and extended private time afterward. Perfect for those seeking a traditional girlfriend experience.
+                        </p>
+                    </div>
+
+                    <!-- Service Card 4 -->
+                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; transition: all 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--spacing-sm); flex-wrap: wrap;">
+                            <h4 style="color: var(--accent-gold); font-size: 1.4rem; margin: 0;">Extended Evening (6+ Hours)</h4>
+                            <span style="color: var(--accent-gold); font-size: 1.3rem; font-weight: 600;">$[PRICE_4]</span>
+                        </div>
+                        <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.7; margin: 0;">
+                            An entire evening devoted to your company. Includes dinner, entertainment, and overnight companionship. The most intimate and comprehensive experience I offer for building genuine rapport.
+                        </p>
+                    </div>
+
+                    <!-- Service Card 5 -->
+                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; transition: all 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--spacing-sm); flex-wrap: wrap;">
+                            <h4 style="color: var(--accent-gold); font-size: 1.4rem; margin: 0;">Overnight (12+ Hours)</h4>
+                            <span style="color: var(--accent-gold); font-size: 1.3rem; font-weight: 600;">$[PRICE_5]</span>
+                        </div>
+                        <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.7; margin: 0;">
+                            Wake up together after a memorable evening. Includes dinner, overnight stay, and breakfast. Perfect for out-of-town visitors or those seeking the ultimate girlfriend experience with authentic intimacy.
+                        </p>
+                    </div>
+
+                    <!-- Service Card 6 -->
+                    <div style="margin-bottom: var(--spacing-xl); padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; transition: all 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--spacing-sm); flex-wrap: wrap;">
+                            <h4 style="color: var(--accent-gold); font-size: 1.4rem; margin: 0;">24 Hours / Full Day</h4>
+                            <span style="color: var(--accent-gold); font-size: 1.3rem; font-weight: 600;">$[PRICE_6]</span>
+                        </div>
+                        <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.7; margin: 0;">
+                            A full day and night together. Whether exploring the city, attending events, or simply enjoying each other's company, this extended time allows for the deepest connection and most authentic experiences.
+                        </p>
+                    </div>
+
+                    <!-- Travel Experiences -->
+                    <h3 style="margin-top: var(--spacing-xl); color: var(--accent-gold); font-size: 1.8rem; text-align: center; margin-bottom: var(--spacing-md); padding-top: var(--spacing-xl); border-top: 1px solid rgba(212, 175, 55, 0.2);">Travel Experiences</h3>
+
+                    <p style="margin-bottom: var(--spacing-lg); color: rgba(255, 255, 255, 0.85); text-align: center; font-size: 1.05rem; font-style: italic; max-width: 700px; margin-left: auto; margin-right: auto;">
+                        [BASE_CITY] is my home, but I'm passionate about travel and new adventures. Whether you'd like me to visit your city or whisk me away to an exotic destination, I'm always ready to explore.
+                    </p>
+
+                    <!-- Travel Card 1 -->
+                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px;">
+                        <h4 style="color: var(--accent-gold); font-size: 1.4rem; margin-bottom: var(--spacing-sm);">Fly Me To You (FMTY)</h4>
+                        <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.7; margin-bottom: var(--spacing-sm);">
+                            I'll travel to your city for an exclusive rendezvous. Whether for business or pleasure, I'll join you for an unforgettable experience in your hometown or travel destination.
+                        </p>
+                        <ul style="color: rgba(255, 255, 255, 0.85); line-height: 1.8; padding-left: 1.5rem; margin: var(--spacing-sm) 0;">
+                            <li style="margin-bottom: var(--spacing-xs);">Minimum: [FMTY_MINIMUM] hours at $[FMTY_PRICE]</li>
+                            <li style="margin-bottom: var(--spacing-xs);">Round-trip airfare (business/first class preferred)</li>
+                            <li style="margin-bottom: var(--spacing-xs);">Ground transportation to/from airport</li>
+                            <li style="margin-bottom: var(--spacing-xs);">4-star or better hotel accommodation</li>
+                            <li style="margin-bottom: var(--spacing-xs);">50% deposit required upon booking</li>
+                        </ul>
+                    </div>
+
+                    <!-- Travel Card 2 -->
+                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px;">
+                        <h4 style="color: var(--accent-gold); font-size: 1.4rem; margin-bottom: var(--spacing-sm);">Weekend Getaway</h4>
+                        <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.7; margin-bottom: var(--spacing-sm);">
+                            Escape with me for a long weekend adventure. Friday evening through Sunday afternoon. Perfect for exploring a new city, relaxing at a resort, or attending special events together.
+                        </p>
+                        <ul style="color: rgba(255, 255, 255, 0.85); line-height: 1.8; padding-left: 1.5rem; margin: var(--spacing-sm) 0;">
+                            <li style="margin-bottom: var(--spacing-xs);">2-3 day minimum: Starting at $[WEEKEND_PRICE]</li>
+                            <li style="margin-bottom: var(--spacing-xs);">All travel expenses (flights, hotels, dining, activities)</li>
+                            <li style="margin-bottom: var(--spacing-xs);">50% non-refundable deposit required</li>
+                            <li style="margin-bottom: var(--spacing-xs);">Advance booking strongly recommended (3+ weeks)</li>
+                        </ul>
+                    </div>
+
+                    <!-- Travel Card 3 -->
+                    <div style="margin-bottom: var(--spacing-xl); padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px;">
+                        <h4 style="color: var(--accent-gold); font-size: 1.4rem; margin-bottom: var(--spacing-sm);">Extended Travel / Vacation</h4>
+                        <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.7; margin-bottom: var(--spacing-sm);">
+                            For the ultimate luxury experience, invite me to join you for an extended vacation. International destinations, private villas, yacht charters, or multi-city tours—let's create unforgettable memories together.
+                        </p>
+                        <ul style="color: rgba(255, 255, 255, 0.85); line-height: 1.8; padding-left: 1.5rem; margin: var(--spacing-sm) 0;">
+                            <li style="margin-bottom: var(--spacing-xs);">Week-long (7+ days): Custom rates based on itinerary</li>
+                            <li style="margin-bottom: var(--spacing-xs);">All travel expenses including luxury accommodations</li>
+                            <li style="margin-bottom: var(--spacing-xs);">Wardrobe allowance for special destinations</li>
+                            <li style="margin-bottom: var(--spacing-xs);">50% deposit, detailed itinerary planning required</li>
+                        </ul>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <h3 style="margin-top: var(--spacing-xl); color: var(--accent-gold); font-size: 1.8rem; text-align: center; margin-bottom: var(--spacing-md); padding-top: var(--spacing-xl); border-top: 1px solid rgba(212, 175, 55, 0.2);">Important Information</h3>
+
+                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: rgba(212, 175, 55, 0.05); border-left: 3px solid var(--accent-gold); border-radius: 4px;">
+                        <h4 style="color: var(--accent-gold); font-size: 1.2rem; margin-bottom: var(--spacing-sm);">What's Included</h4>
+                        <ul style="color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem; margin: 0;">
+                            <li style="margin-bottom: var(--spacing-xs);">My time, attention, and companionship for the duration of our date</li>
+                            <li style="margin-bottom: var(--spacing-xs);">Engaging conversation and genuine connection</li>
+                            <li style="margin-bottom: var(--spacing-xs);">A judgment-free, discreet, and professional experience</li>
+                            <li style="margin-bottom: var(--spacing-xs);">Preparation time including grooming, wardrobe selection, and travel to you</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: rgba(212, 175, 55, 0.05); border-left: 3px solid var(--accent-gold); border-radius: 4px;">
+                        <h4 style="color: var(--accent-gold); font-size: 1.2rem; margin-bottom: var(--spacing-sm);">Additional Expenses</h4>
+                        <ul style="color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem; margin: 0;">
+                            <li style="margin-bottom: var(--spacing-xs);">Dinner, drinks, entertainment, and activities are separate from my rate</li>
+                            <li style="margin-bottom: var(--spacing-xs);">Hotel incalls require you to secure and pay for the room</li>
+                            <li style="margin-bottom: var(--spacing-xs);">Parking fees, valet, or rideshare to incall locations</li>
+                            <li style="margin-bottom: var(--spacing-xs);">All travel expenses for FMTY and vacation dates</li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: var(--spacing-lg); padding: var(--spacing-lg); background: rgba(212, 175, 55, 0.05); border-left: 3px solid var(--accent-gold); border-radius: 4px;">
+                        <h4 style="color: var(--accent-gold); font-size: 1.2rem; margin-bottom: var(--spacing-sm);">Booking Policy</h4>
+                        <ul style="color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem; margin: 0;">
+                            <li style="margin-bottom: var(--spacing-xs);">Advance booking is strongly encouraged (24-48 hours minimum)</li>
+                            <li style="margin-bottom: var(--spacing-xs);">Deposits required for first-time meetings and all travel dates</li>
+                            <li style="margin-bottom: var(--spacing-xs);">Screening is mandatory—no exceptions</li>
+                            <li style="margin-bottom: var(--spacing-xs);">Cancellations within 24 hours forfeit deposit</li>
+                            <li>Last-minute availability occasionally posted on my preferred platforms</li>
+                        </ul>
+                    </div>
+
+                    <!-- CTA -->
+                    <div style="margin-top: var(--spacing-xl); padding: var(--spacing-xl); background: rgba(212, 175, 55, 0.08); border-radius: 8px; text-align: center;">
+                        <h4 style="color: var(--accent-gold); font-size: 1.4rem; margin-bottom: var(--spacing-sm);">Ready to Book?</h4>
+                        <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: var(--spacing-md); font-size: 1.05rem;">
+                            I look forward to meeting discerning gentlemen who appreciate quality companionship and mutual respect.
+                        </p>
+                        <a href="book.html" class="btn btn-primary" style="display: inline-block; margin-top: var(--spacing-sm);">Book Now</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 [MODEL_NAME] Inc. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact</a>
+                <a href="admin-login.php" class="admin-link">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <button class="lightbox-close" id="lightbox-close">&times;</button>
+        <img src="" alt="" id="lightbox-image">
+    </div>
+
+    <!-- Main JavaScript -->
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

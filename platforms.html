@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[MODEL_NAME] | Platforms & Shop</title>
+    <meta name="description" content="Connect with [MODEL_NAME] across all platforms and shop exclusive merchandise.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Age Verification Modal -->
+    <div id="age-modal" class="age-modal">
+        <div class="age-modal-content">
+            <h2>Age Verification</h2>
+            <p>This website contains content intended for adults only.</p>
+            <p>Please confirm you are 18 years or older to continue.</p>
+            <div class="age-modal-buttons">
+                <button id="age-confirm" class="btn btn-primary">I am 18+</button>
+                <button id="age-decline" class="btn btn-secondary">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Modal -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <span class="modal-close">&times;</span>
+
+            <!-- Tab switcher -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form-container" class="auth-form-container">
+                <h2>Login to Continue</h2>
+                <form id="login-form">
+                    <input type="hidden" name="csrf_token" id="login-csrf-token">
+                    <div class="form-group">
+                        <label for="login-username">Username or Email</label>
+                        <input type="text" name="username" id="login-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" name="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <div class="form-message"></div>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form-container" class="auth-form-container hidden">
+                <h2>Create Account</h2>
+                <form id="register-form">
+                    <input type="hidden" name="csrf_token" id="register-csrf-token">
+                    <div class="form-group">
+                        <label for="register-username">Username</label>
+                        <input type="text" name="username" id="register-username" required pattern="[a-zA-Z0-9_-]{3,50}" title="3-50 characters, letters, numbers, underscore, hyphen only">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" name="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password (min 8 characters)</label>
+                        <input type="password" name="password" id="register-password" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-dob">Date of Birth (must be 18+)</label>
+                        <input type="date" name="date_of_birth" id="register-dob" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                    <div class="form-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paywall Modal -->
+    <div id="paywall-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <span class="modal-close">&times;</span>
+            <h2>Premium Access Required</h2>
+            <p>Purchase one-time access to unlock all exclusive content</p>
+            <div class="paywall-price">$19.99</div>
+            <p class="paywall-description">Lifetime access • All pages & content • Gallery & videos • Future updates</p>
+            <button id="purchase-access-btn" class="btn btn-primary btn-large">
+                Purchase Full Access
+            </button>
+            <p class="paywall-note">Secure payment powered by Stripe</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">[MODEL_NAME]</a>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="platforms.html" class="nav-link">Platforms</a></li>
+                <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+                <li><a href="book.html" class="nav-link">Book</a></li>
+                <li><a href="etiquette.html" class="nav-link">Etiquette</a></li>
+                <li id="show-login-btn" class="hidden"><button class="btn btn-secondary nav-login-btn" onclick="authManager.showAuthModal('login')">Login</button></li>
+                <li id="user-menu" class="user-menu hidden">
+                    <span id="username-display" class="username-display"></span>
+                    <button id="logout-btn" class="btn btn-secondary btn-small">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Platforms Section -->
+    <section id="platforms" class="platforms section">
+        <div class="container">
+            <h2 class="section-title centered">Connect With Me</h2>
+            <div class="title-underline centered"></div>
+            <p class="section-subtitle">Choose your preferred platform to access exclusive content and updates</p>
+            
+            <div class="platform-grid">
+                <!-- Card 1 -->
+                <div class="platform-card reveal">
+                    <div class="platform-icon">
+                        <img src="cards/placeholder-icon.webp" alt="[PLATFORM_1_NAME]">
+                    </div>
+                    <h3>[PLATFORM_1_NAME]</h3>
+                    <p>[PLATFORM_1_DESC]</p>
+                    <a href="[PLATFORM_1_URL]" target="_blank" rel="noopener noreferrer" class="platform-link">Follow</a>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="platform-card reveal-delay">
+                    <div class="platform-icon">
+                        <img src="cards/placeholder-icon.webp" alt="[PLATFORM_2_NAME]">
+                    </div>
+                    <h3>[PLATFORM_2_NAME]</h3>
+                    <p>[PLATFORM_2_DESC]</p>
+                    <a href="[PLATFORM_2_URL]" target="_blank" rel="noopener noreferrer" class="platform-link">Subscribe</a>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="platform-card reveal-delay-2">
+                    <div class="platform-icon">
+                        <img src="cards/placeholder-icon.webp" alt="[PLATFORM_3_NAME]">
+                    </div>
+                    <h3>[PLATFORM_3_NAME]</h3>
+                    <p>[PLATFORM_3_DESC]</p>
+                    <a href="[PLATFORM_3_URL]" target="_blank" rel="noopener noreferrer" class="platform-link">Unlock</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 [MODEL_NAME] Inc. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact</a>
+                <a href="admin-login.php" class="admin-link">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

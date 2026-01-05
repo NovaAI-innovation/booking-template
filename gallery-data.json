@@ -1,0 +1,23 @@
+{
+    "images": [],
+    "videos": [
+        {
+            "id": 2,
+            "filename": "video-2.mp4",
+            "videoPath": "Videos for website\/video-2.mp4",
+            "thumbnailPath": "Pics for website\/video-thumbnail-2.webp",
+            "title": "Video 2",
+            "order": 1,
+            "uploadedAt": "2026-01-03T10:00:00Z"
+        },
+        {
+            "id": 3,
+            "filename": "video-3.mp4",
+            "videoPath": "Videos for website\/video-3.mp4",
+            "thumbnailPath": "Pics for website\/video-thumbnail-3.webp",
+            "title": "Video 3",
+            "order": 2,
+            "uploadedAt": "2026-01-03T10:00:00Z"
+        }
+    ]
+}

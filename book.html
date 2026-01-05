@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[MODEL_NAME] | Book a Session</title>
+    <meta name="description" content="Book a session with [MODEL_NAME]. Fill out the booking form to request an appointment.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+    <!-- Age Verification Modal -->
+    <div id="age-modal" class="age-modal">
+        <div class="age-modal-content">
+            <h2>Age Verification</h2>
+            <p>This website contains content intended for adults only.</p>
+            <p>Please confirm you are 18 years or older to continue.</p>
+            <div class="age-modal-buttons">
+                <button id="age-confirm" class="btn btn-primary">I am 18+</button>
+                <button id="age-decline" class="btn btn-secondary">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Modal -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <span class="modal-close">&times;</span>
+
+            <!-- Tab switcher -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form-container" class="auth-form-container">
+                <h2>Login to Continue</h2>
+                <form id="login-form">
+                    <input type="hidden" name="csrf_token" id="login-csrf-token">
+                    <div class="form-group">
+                        <label for="login-username">Username or Email</label>
+                        <input type="text" name="username" id="login-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" name="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <div class="form-message"></div>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form-container" class="auth-form-container hidden">
+                <h2>Create Account</h2>
+                <form id="register-form">
+                    <input type="hidden" name="csrf_token" id="register-csrf-token">
+                    <div class="form-group">
+                        <label for="register-username">Username</label>
+                        <input type="text" name="username" id="register-username" required pattern="[a-zA-Z0-9_-]{3,50}" title="3-50 characters, letters, numbers, underscore, hyphen only">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" name="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password (min 8 characters)</label>
+                        <input type="password" name="password" id="register-password" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-dob">Date of Birth (must be 18+)</label>
+                        <input type="date" name="date_of_birth" id="register-dob" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                    <div class="form-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paywall Modal -->
+    <div id="paywall-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <span class="modal-close">&times;</span>
+            <h2>Premium Access Required</h2>
+            <p>Purchase one-time access to unlock all exclusive content</p>
+            <div class="paywall-price">$19.99</div>
+            <p class="paywall-description">Lifetime access • All pages & content • Gallery & videos • Future updates</p>
+            <button id="purchase-access-btn" class="btn btn-primary btn-large">
+                Purchase Full Access
+            </button>
+            <p class="paywall-note">Secure payment powered by Stripe</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">[MODEL_NAME]</a>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="platforms.html" class="nav-link">Platforms</a></li>
+                <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+                <li><a href="book.html" class="nav-link">Book</a></li>
+                <li><a href="etiquette.html" class="nav-link">Etiquette</a></li>
+                <li id="show-login-btn" class="hidden"><button class="btn btn-secondary nav-login-btn" onclick="authManager.showAuthModal('login')">Login</button></li>
+                <li id="user-menu" class="user-menu hidden">
+                    <span id="username-display" class="username-display"></span>
+                    <button id="logout-btn" class="btn btn-secondary btn-small">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Book a Session -->
+    <section id="book" class="connect section">
+        <div class="container">
+            <div class="connect-content">
+                <h2 class="section-title centered">Book a Session</h2>
+                <div class="title-underline centered"></div>
+                <p class="section-subtitle" style="max-width: 900px; margin: var(--spacing-md) auto var(--spacing-lg); font-size: 1.05rem; line-height: 1.7;">
+                    Thank you for your interest in spending time together. Please complete this booking form with accurate and detailed information. All submissions are kept strictly confidential and will be reviewed promptly.
+                </p>
+
+                <!-- Important Notice -->
+                <div style="margin-bottom: var(--spacing-xl); padding: var(--spacing-lg); background: rgba(212, 175, 55, 0.1); border-left: 4px solid var(--accent-gold); border-radius: 4px; max-width: 900px; margin-left: auto; margin-right: auto;">
+                    <h3 style="color: var(--accent-gold); font-size: 1.3rem; margin-bottom: var(--spacing-sm);">Before You Book</h3>
+                    <ul style="color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem; margin: 0;">
+                        <li style="margin-bottom: var(--spacing-xs);">Please read the <a href="etiquette.html" style="color: var(--accent-gold); text-decoration: underline;">Etiquette page</a> before submitting your request</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Review my <a href="services.html" style="color: var(--accent-gold); text-decoration: underline;">Services & Rates</a> to ensure you understand the investment</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Book at least 24-48 hours in advance when possible</li>
+                        <li>Same-day requests may not be accommodated</li>
+                    </ul>
+                </div>
+
+                <!-- Booking Form -->
+                <form id="booking-form" class="booking-form" style="max-width: 900px; margin: 0 auto;">
+
+                    <!-- Personal Information Section -->
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--accent-gold); font-size: 1.4rem; margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(212, 175, 55, 0.3);">Personal Information</h3>
+
+                        <div class="form-row form-row-single">
+                            <div class="form-group">
+                                <label for="name">Full Name *</label>
+                                <input type="text" id="name" name="name" required placeholder="Your full legal name" style="font-size: 1rem; padding: 0.875rem;">
+                            </div>
+                        </div>
+
+                        <div class="form-row form-row-double">
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" required placeholder="your.email@example.com" autocomplete="email" inputmode="email" style="font-size: 1rem; padding: 0.875rem;">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number *</label>
+                                <input type="tel" id="phone" name="phone" required placeholder="(555) 123-4567" autocomplete="tel" inputmode="tel" style="font-size: 1rem; padding: 0.875rem;">
+                            </div>
+                        </div>
+
+                        <div class="form-row form-row-single">
+                            <div class="form-group">
+                                <label for="date_of_birth">Date of Birth * <span style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.6);">(Must be 18+)</span></label>
+                                <input type="date" id="date_of_birth" name="date_of_birth" required style="width: 100%; padding: 0.875rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 4px; color: var(--text-primary); font-size: 1.1rem; font-family: 'Inter', sans-serif; touch-action: manipulation; -webkit-appearance: none;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appointment Details Section -->
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--accent-gold); font-size: 1.4rem; margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(212, 175, 55, 0.3);">Appointment Details</h3>
+
+                        <div class="form-row form-row-single">
+                            <div class="form-group">
+                                <label for="service_type">Desired Service / Duration *</label>
+                                <select id="service_type" name="service_type" required style="width: 100%; padding: 0.875rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 4px; color: var(--text-primary); font-size: 1.1rem; font-family: 'Inter', sans-serif; touch-action: manipulation;">
+                                    <option value="">-- Select a service --</option>
+                                    <option value="1-hour">1 Hour Rendezvous</option>
+                                    <option value="2-hour">2 Hour Experience</option>
+                                    <option value="3-4-hour">3-4 Hour Dinner Date</option>
+                                    <option value="6-hour">Extended Evening (6+ Hours)</option>
+                                    <option value="overnight">Overnight (12+ Hours)</option>
+                                    <option value="24-hour">24 Hours / Full Day</option>
+                                    <option value="fmty">Fly Me To You (FMTY)</option>
+                                    <option value="weekend">Weekend Getaway</option>
+                                    <option value="extended-travel">Extended Travel / Vacation</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row form-row-double">
+                            <div class="form-group">
+                                <label for="preferred_date">Preferred Date *</label>
+                                <input type="date" id="preferred_date" name="preferred_date" required style="width: 100%; padding: 0.875rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 4px; color: var(--text-primary); font-size: 1.1rem; font-family: 'Inter', sans-serif; touch-action: manipulation; -webkit-appearance: none;">
+                            </div>
+                            <div class="form-group">
+                                <label for="preferred_time">Preferred Time *</label>
+                                <input type="time" id="preferred_time" name="preferred_time" required style="width: 100%; padding: 0.875rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 4px; color: var(--text-primary); font-size: 1.1rem; font-family: 'Inter', sans-serif; touch-action: manipulation; -webkit-appearance: none;">
+                            </div>
+                        </div>
+
+                        <div class="form-row form-row-single">
+                            <div class="form-group">
+                                <label for="meeting_type">Meeting Location Preference *</label>
+                                <select id="meeting_type" name="meeting_type" required style="width: 100%; padding: 0.875rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 4px; color: var(--text-primary); font-size: 1.1rem; font-family: 'Inter', sans-serif; touch-action: manipulation;">
+                                    <option value="">-- Select location preference --</option>
+                                    <option value="incall">Incall - Hotel (secured by you)</option>
+                                    <option value="outcall">Outcall - I will travel to you</option>
+                                    <option value="public-first">Public location first (dinner/drinks)</option>
+                                    <option value="travel">Travel destination</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row form-row-single">
+                            <div class="form-group">
+                                <label for="location_details">Location / City *</label>
+                                <input type="text" id="location_details" name="location_details" required placeholder="City or specific location details" style="font-size: 1rem; padding: 0.875rem;">
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Additional Details Section -->
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--accent-gold); font-size: 1.4rem; margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-sm); border-bottom: 1px solid rgba(212, 175, 55, 0.3);">Additional Information</h3>
+
+                        <div class="form-row form-row-single">
+                            <div class="form-group">
+                                <label for="special_requests">Special Requests or Notes (Optional)</label>
+                                <textarea id="special_requests" name="special_requests" rows="5" placeholder="Any special requests, preferences, or additional information I should know...&#10;&#10;Examples:&#10;- Dietary restrictions for dinner dates&#10;- Wardrobe preferences&#10;- Special occasion details&#10;- Accessibility needs"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row form-row-single">
+                            <div class="form-group">
+                                <label for="deposit_acknowledgment" style="display: flex; align-items: flex-start; cursor: pointer; color: rgba(255, 255, 255, 0.9);">
+                                    <input type="checkbox" id="deposit_acknowledgment" name="deposit_acknowledgment" required style="margin-right: var(--spacing-xs); margin-top: 4px; cursor: pointer;">
+                                    <span>I understand that a deposit may be required to confirm this booking, and that deposits are non-refundable except in cases of emergency on your part. *</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-row form-row-single">
+                            <div class="form-group">
+                                <label for="etiquette_acknowledgment" style="display: flex; align-items: flex-start; cursor: pointer; color: rgba(255, 255, 255, 0.9);">
+                                    <input type="checkbox" id="etiquette_acknowledgment" name="etiquette_acknowledgment" required style="margin-right: var(--spacing-xs); margin-top: 4px; cursor: pointer;">
+                                    <span>I have read and agree to follow the <a href="etiquette.html" style="color: var(--accent-gold); text-decoration: underline;" target="_blank">Companion Etiquette guidelines</a>. *</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" style="font-size: 1.15rem; padding: 1.125rem 2.5rem; min-height: 54px; touch-action: manipulation; -webkit-tap-highlight-color: transparent;">Submit Booking Request</button>
+                    </div>
+                </form>
+
+                <!-- After Submission Info -->
+                <div style="margin-top: var(--spacing-xl); padding: var(--spacing-lg); background: rgba(255, 255, 255, 0.03); border-radius: 8px; max-width: 900px; margin-left: auto; margin-right: auto;">
+                    <h3 style="color: var(--accent-gold); font-size: 1.3rem; margin-bottom: var(--spacing-md); text-align: center;">What Happens Next?</h3>
+
+                    <div style="color: rgba(255, 255, 255, 0.9); line-height: 1.8;">
+                        <div style="margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+                            <h4 style="color: var(--accent-gold); font-size: 1.1rem; margin-bottom: var(--spacing-xs);">1. Review Your Request</h4>
+                            <p style="margin: 0; font-size: 0.95rem;">I will review your booking request within 24 hours. Incomplete submissions will not receive a response.</p>
+                        </div>
+
+                        <div style="margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+                            <h4 style="color: var(--accent-gold); font-size: 1.1rem; margin-bottom: var(--spacing-xs);">2. Confirmation Email</h4>
+                            <p style="margin: 0; font-size: 0.95rem;">You'll receive a confirmation email with deposit instructions (if required) and next steps for finalizing your booking.</p>
+                        </div>
+
+                        <div style="margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+                            <h4 style="color: var(--accent-gold); font-size: 1.1rem; margin-bottom: var(--spacing-xs);">3. Final Details</h4>
+                            <p style="margin: 0; font-size: 0.95rem;">Once confirmed, I'll provide final meeting details including my contact number and any location specifics.</p>
+                        </div>
+
+                        <div style="margin-bottom: 0;">
+                            <h4 style="color: var(--accent-gold); font-size: 1.1rem; margin-bottom: var(--spacing-xs);">4. Our Date</h4>
+                            <p style="margin: 0; font-size: 0.95rem;">Please arrive on time, freshly groomed, and with the agreed-upon donation in an unsealed envelope. I look forward to meeting you!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="booking-note" style="margin-top: var(--spacing-lg); text-align: center;">
+                    <small style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">All information is kept strictly confidential and secure. Your privacy is my priority.</small>
+                </p>
+
+                <div style="margin-top: var(--spacing-md); padding: var(--spacing-md); background: rgba(212, 175, 55, 0.08); border-radius: 4px; text-align: center; max-width: 700px; margin-left: auto; margin-right: auto;">
+                    <p style="color: rgba(255, 255, 255, 0.85); margin: 0; font-size: 0.95rem;">
+                        <strong>Questions?</strong> Email me at <a href="mailto:[YOUR_EMAIL]" style="color: var(--accent-gold); text-decoration: underline;">[YOUR_EMAIL]</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 [MODEL_NAME] Inc. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact</a>
+                <a href="admin-login.php" class="admin-link">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

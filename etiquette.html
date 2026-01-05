@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[MODEL_NAME] | Etiquette</title>
+    <meta name="description" content="Guidelines and etiquette for booking and meeting with [MODEL_NAME].">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Age Verification Modal -->
+    <div id="age-modal" class="age-modal">
+        <div class="age-modal-content">
+            <h2>Age Verification</h2>
+            <p>This website contains content intended for adults only.</p>
+            <p>Please confirm you are 18 years or older to continue.</p>
+            <div class="age-modal-buttons">
+                <button id="age-confirm" class="btn btn-primary">I am 18+</button>
+                <button id="age-decline" class="btn btn-secondary">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Modal -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <span class="modal-close">&times;</span>
+
+            <!-- Tab switcher -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form-container" class="auth-form-container">
+                <h2>Login to Continue</h2>
+                <form id="login-form">
+                    <input type="hidden" name="csrf_token" id="login-csrf-token">
+                    <div class="form-group">
+                        <label for="login-username">Username or Email</label>
+                        <input type="text" name="username" id="login-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" name="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <div class="form-message"></div>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form-container" class="auth-form-container hidden">
+                <h2>Create Account</h2>
+                <form id="register-form">
+                    <input type="hidden" name="csrf_token" id="register-csrf-token">
+                    <div class="form-group">
+                        <label for="register-username">Username</label>
+                        <input type="text" name="username" id="register-username" required pattern="[a-zA-Z0-9_-]{3,50}" title="3-50 characters, letters, numbers, underscore, hyphen only">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" name="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password (min 8 characters)</label>
+                        <input type="password" name="password" id="register-password" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-dob">Date of Birth (must be 18+)</label>
+                        <input type="date" name="date_of_birth" id="register-dob" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                    <div class="form-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paywall Modal -->
+    <div id="paywall-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <span class="modal-close">&times;</span>
+            <h2>Premium Access Required</h2>
+            <p>Purchase one-time access to unlock all exclusive content</p>
+            <div class="paywall-price">$19.99</div>
+            <p class="paywall-description">Lifetime access • All pages & content • Gallery & videos • Future updates</p>
+            <button id="purchase-access-btn" class="btn btn-primary btn-large">
+                Purchase Full Access
+            </button>
+            <p class="paywall-note">Secure payment powered by Stripe</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">[MODEL_NAME]</a>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="platforms.html" class="nav-link">Platforms</a></li>
+                <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+                <li><a href="book.html" class="nav-link">Book</a></li>
+                <li><a href="etiquette.html" class="nav-link">Etiquette</a></li>
+                <li id="show-login-btn" class="hidden"><button class="btn btn-secondary nav-login-btn" onclick="authManager.showAuthModal('login')">Login</button></li>
+                <li id="user-menu" class="user-menu hidden">
+                    <span id="username-display" class="username-display"></span>
+                    <button id="logout-btn" class="btn btn-secondary btn-small">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Etiquette Section -->
+    <section id="etiquette" class="about section">
+        <div class="container">
+            <div class="about-content" style="grid-template-columns: 1fr;">
+                <div class="about-text reveal-delay" style="max-width: 100%;">
+                    <h2 class="section-title" style="text-align: center;">Companion Etiquette</h2>
+                    <div class="title-underline" style="margin: 0 auto;"></div>
+
+                    <p style="margin-top: var(--spacing-md); margin-bottom: var(--spacing-lg); color: rgba(255, 255, 255, 0.85); text-align: center; font-size: 1.1rem; font-style: italic;">
+                        Mutual respect and consideration create the foundation for exceptional experiences. Please review these guidelines to ensure our time together is seamless and memorable.
+                    </p>
+
+                    <!-- Booking & Communication -->
+                    <h3 style="margin-top: var(--spacing-lg); color: var(--accent-gold); font-size: 1.5rem;">Booking & Communication</h3>
+                    <ul style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md); color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem;">
+                        <li style="margin-bottom: var(--spacing-xs);">Book in advance whenever possible. Last-minute requests may not always be accommodated.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Provide complete screening information promptly and honestly. This ensures both our safety and privacy.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Be clear and specific about date details including time, duration, and location preferences.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Communicate professionally and respectfully in all correspondence.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">If plans change, provide as much notice as possible. Cancellation policies apply.</li>
+                    </ul>
+
+                    <!-- Hygiene & Presentation -->
+                    <h3 style="margin-top: var(--spacing-lg); color: var(--accent-gold); font-size: 1.5rem;">Hygiene & Presentation</h3>
+                    <ul style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md); color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem;">
+                        <li style="margin-bottom: var(--spacing-xs);">Arrive freshly showered and well-groomed. Personal hygiene is non-negotiable.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Dress appropriately for the occasion. When in doubt, business casual or smart casual is recommended.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Use breath mints or gum before our meeting. Avoid heavy cologne or strong scents.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Maintain good oral hygiene including fresh breath and clean teeth.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Keep nails clean and trimmed for comfort and safety.</li>
+                    </ul>
+
+                    <!-- Punctuality & Time Management -->
+                    <h3 style="margin-top: var(--spacing-lg); color: var(--accent-gold); font-size: 1.5rem;">Punctuality & Time Management</h3>
+                    <ul style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md); color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem;">
+                        <li style="margin-bottom: var(--spacing-xs);">Arrive on time. Punctuality demonstrates respect for my schedule.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">If running late, communicate immediately. Extended delays may result in shortened sessions.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Respect agreed-upon time limits. Extensions require advance approval and additional compensation.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Do not expect overtime or rush preparations due to your tardiness.</li>
+                    </ul>
+
+                    <!-- Financial Etiquette -->
+                    <h3 style="margin-top: var(--spacing-lg); color: var(--accent-gold); font-size: 1.5rem;">Financial Etiquette</h3>
+                    <ul style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md); color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem;">
+                        <li style="margin-bottom: var(--spacing-xs);">Present the agreed-upon donation at the beginning of our date in an unsealed envelope.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Have the exact amount in clean, crisp bills. Do not expect change to be available.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Never discuss, negotiate, or question rates during our appointment.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Deposits are non-refundable except in cases of emergency on my part.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Additional expenses (dinner, drinks, entertainment, travel) are separate from my companionship fee.</li>
+                    </ul>
+
+                    <!-- Boundaries & Respect -->
+                    <h3 style="margin-top: var(--spacing-lg); color: var(--accent-gold); font-size: 1.5rem;">Boundaries & Respect</h3>
+                    <ul style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md); color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem;">
+                        <li style="margin-bottom: var(--spacing-xs);">Respect all stated boundaries and limitations without exception.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Consent is ongoing and can be withdrawn at any time. "No" means no.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Do not attempt to negotiate services or activities I have explicitly declined.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Treat me with the same courtesy and respect you would expect in return.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Intoxication or substance use that impairs judgment is unacceptable and grounds for termination.</li>
+                    </ul>
+
+                    <!-- Privacy & Discretion -->
+                    <h3 style="margin-top: var(--spacing-lg); color: var(--accent-gold); font-size: 1.5rem;">Privacy & Discretion</h3>
+                    <ul style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md); color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem;">
+                        <li style="margin-bottom: var(--spacing-xs);">Maintain complete confidentiality about our arrangement and any personal details shared.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">No photography, video, or audio recording unless explicitly agreed upon in advance.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Do not share my contact information or advertise our arrangement to others.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Be discreet when arriving and departing from meeting locations.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Respect my privacy by not attempting to discover personal information beyond what I choose to share.</li>
+                    </ul>
+
+                    <!-- During Our Time Together -->
+                    <h3 style="margin-top: var(--spacing-lg); color: var(--accent-gold); font-size: 1.5rem;">During Our Time Together</h3>
+                    <ul style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md); color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem;">
+                        <li style="margin-bottom: var(--spacing-xs);">Put your phone on silent and minimize distractions. Give me your full attention.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Be present and engaged. Quality conversation and connection are valued.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Follow my lead regarding the pace and progression of our date.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">If attending public venues, be aware of social dynamics and behave appropriately.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Ask before touching or initiating physical contact. Consent applies throughout our time together.</li>
+                    </ul>
+
+                    <!-- General Courtesy -->
+                    <h3 style="margin-top: var(--spacing-lg); color: var(--accent-gold); font-size: 1.5rem;">General Courtesy</h3>
+                    <ul style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-md); color: rgba(255, 255, 255, 0.9); line-height: 1.8; padding-left: 1.5rem;">
+                        <li style="margin-bottom: var(--spacing-xs);">Arrive sober or with only moderate alcohol consumption. Excessive intoxication will result in appointment cancellation.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">If meeting at a hotel, secure the room in your name and have it ready prior to my arrival.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Provide a clean, comfortable, and safe environment for our date.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Be gracious if I need to end our time together early due to boundary violations or discomfort.</li>
+                        <li style="margin-bottom: var(--spacing-xs);">Leave a positive review or testimonial if you enjoyed our time (on approved platforms only).</li>
+                    </ul>
+
+                    <!-- Closing Note -->
+                    <div style="margin-top: var(--spacing-xl); padding: var(--spacing-md); background: rgba(212, 175, 55, 0.1); border-left: 3px solid var(--accent-gold); border-radius: 4px;">
+                        <p style="color: rgba(255, 255, 255, 0.95); font-size: 1.05rem; margin: 0; line-height: 1.7;">
+                            <strong>Thank you for respecting these guidelines.</strong> They ensure that our time together is comfortable, safe, and mutually enjoyable. Gentlemen who honor these standards are always welcomed back and prioritized for future bookings. I look forward to creating unforgettable memories together.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 [MODEL_NAME] Inc. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact</a>
+                <a href="admin-login.php" class="admin-link">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

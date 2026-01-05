@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[MODEL_NAME] | Content Creator</title>
+    <meta name="description" content="Welcome to [MODEL_NAME]'s world - exclusive content, daily updates, and more.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+    <!-- Age Verification Modal -->
+    <div id="age-modal" class="age-modal">
+        <div class="age-modal-content">
+            <h2>Age Verification</h2>
+            <p>This website contains content intended for adults only.</p>
+            <p>Please confirm you are 18 years or older to continue.</p>
+            <div class="age-modal-buttons">
+                <button id="age-confirm" class="btn btn-primary">I am 18+</button>
+                <button id="age-decline" class="btn btn-secondary">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication Modal -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <span class="modal-close">&times;</span>
+
+            <!-- Tab switcher -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form-container" class="auth-form-container">
+                <h2>Login to Continue</h2>
+                <form id="login-form">
+                    <input type="hidden" name="csrf_token" id="login-csrf-token">
+                    <div class="form-group">
+                        <label for="login-username">Username or Email</label>
+                        <input type="text" name="username" id="login-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" name="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <div class="form-message"></div>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form-container" class="auth-form-container hidden">
+                <h2>Create Account</h2>
+                <form id="register-form">
+                    <input type="hidden" name="csrf_token" id="register-csrf-token">
+                    <div class="form-group">
+                        <label for="register-username">Username</label>
+                        <input type="text" name="username" id="register-username" required pattern="[a-zA-Z0-9_-]{3,50}" title="3-50 characters, letters, numbers, underscore, hyphen only">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" name="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password (min 8 characters)</label>
+                        <input type="password" name="password" id="register-password" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-dob">Date of Birth (must be 18+)</label>
+                        <input type="date" name="date_of_birth" id="register-dob" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                    <div class="form-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paywall Modal -->
+    <div id="paywall-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <span class="modal-close">&times;</span>
+            <h2>Premium Access Required</h2>
+            <p>Purchase one-time access to unlock all exclusive content</p>
+            <div class="paywall-price">$19.99</div>
+            <p class="paywall-description">Lifetime access • All pages & content • Gallery & videos • Future updates</p>
+            <button id="purchase-access-btn" class="btn btn-primary btn-large">
+                Purchase Full Access
+            </button>
+            <p class="paywall-note">Secure payment powered by Stripe</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">[MODEL_NAME]</a>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="platforms.html" class="nav-link">Platforms</a></li>
+                <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+                <li><a href="book.html" class="nav-link">Book</a></li>
+                <li><a href="etiquette.html" class="nav-link">Etiquette</a></li>
+                <li id="show-login-btn" class="hidden"><button class="btn btn-secondary nav-login-btn" onclick="authManager.showAuthModal('login')">Login</button></li>
+                <li id="user-menu" class="user-menu hidden">
+                    <span id="username-display" class="username-display"></span>
+                    <button id="logout-btn" class="btn btn-secondary btn-small">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title fade-in">[MODEL_NAME]</h1>
+            <p class="hero-subtitle fade-in-delay">[MODEL_TAGLINE]</p>
+            <p class="hero-tagline fade-in-delay-2">[WELCOME_MESSAGE]</p>
+            <div class="hero-cta-group fade-in-delay-3">
+                <a href="platforms.html" class="btn btn-primary btn-magnetic">Explore Platforms</a>
+                <a href="book.html" class="btn btn-secondary btn-magnetic">Book Now</a>
+                <a href="gallery.html" class="btn btn-secondary btn-magnetic">View Gallery</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span></span>
+        </div>
+    </section>
+
+    <!-- About/Welcome Section -->
+    <section id="about" class="about section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text reveal">
+                    <h2 class="section-title">Welcome to My World</h2>
+                    <div class="title-underline"></div>
+                    <p>I'm [MODEL_NAME], offering exclusive content and personalized experiences. Explore my services, connect on various platforms, or book a session.</p>
+                    <a href="services.html" class="btn btn-primary">Discover My Services</a>
+                </div>
+                <div class="about-image reveal-delay">
+                    <div class="image-frame">
+                        <img src="https://via.placeholder.com/600x800/1a1a1a/F8981E?text=Your+Photo" alt="[MODEL_NAME]">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Services Section -->
+    <section id="featured-services" class="featured-services section">
+        <div class="container">
+            <h2 class="section-title centered reveal">What I Offer</h2>
+            <div class="title-underline centered"></div>
+            <p class="section-subtitle reveal-delay">Premium experiences tailored to your desires</p>
+
+            <div class="services-grid">
+                <div class="service-card glass-panel reveal">
+                    <div class="service-icon">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                    </div>
+                    <h3>Exclusive Content</h3>
+                    <p>Premium photos and videos</p>
+                    <a href="services.html" class="service-link">Learn More →</a>
+                </div>
+
+                <div class="service-card glass-panel reveal-delay">
+                    <div class="service-icon">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    <h3>Personal Interaction</h3>
+                    <p>Custom requests and direct messaging</p>
+                    <a href="services.html" class="service-link">Learn More →</a>
+                </div>
+            </div>
+
+            <div class="section-cta reveal-delay-2">
+                <a href="services.html" class="btn btn-primary btn-magnetic">View All Services</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platforms Showcase Section -->
+    <section id="platforms-preview" class="platforms section">
+        <div class="container">
+            <h2 class="section-title centered reveal">Find Me On</h2>
+            <div class="title-underline centered"></div>
+            <p class="section-subtitle reveal-delay">Connect with me across multiple platforms</p>
+
+            <div class="platform-grid">
+                <div class="platform-card reveal">
+                    <div class="platform-icon">
+                        <img src="https://via.placeholder.com/120/FF1493/ffffff?text=OF" alt="OnlyFans">
+                    </div>
+                    <h3>OnlyFans</h3>
+                    <p>Premium content hub</p>
+                    <a href="platforms.html" class="platform-link">View Details</a>
+                </div>
+
+                <div class="platform-card reveal-delay">
+                    <div class="platform-icon">
+                        <img src="https://via.placeholder.com/120/E4405F/ffffff?text=IG" alt="Instagram">
+                    </div>
+                    <h3>Instagram</h3>
+                    <p>Daily lifestyle updates</p>
+                    <a href="platforms.html" class="platform-link">View Details</a>
+                </div>
+            </div>
+
+            <div class="section-cta reveal-delay-2">
+                <a href="platforms.html" class="btn btn-primary btn-magnetic">View All Platforms</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Teaser Section -->
+    <section id="gallery-preview" class="gallery-teaser section">
+        <div class="container">
+            <h2 class="section-title centered reveal">Gallery</h2>
+            <div class="title-underline centered"></div>
+            <div class="gallery-text-teaser reveal-delay">
+                <p class="teaser-description">Explore curated photo and video collections showcasing exclusive content. Access requires premium membership.</p>
+            </div>
+
+            <div class="section-cta reveal-delay-2">
+                <a href="gallery.html" class="btn btn-primary btn-magnetic">View Full Gallery</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section id="cta-final" class="connect section">
+        <div class="container">
+            <h2 class="section-title centered reveal">Ready to Connect?</h2>
+            <div class="title-underline centered"></div>
+            <p class="section-subtitle reveal-delay">Book a personalized session or explore exclusive content on my platforms</p>
+
+            <div class="cta-buttons reveal-delay-2">
+                <a href="book.html" class="btn btn-primary btn-magnetic">Book a Session</a>
+                <a href="platforms.html" class="btn btn-secondary">Browse Platforms</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tipping Section -->
+    <section id="tipping" class="tipping section">
+        <div class="container">
+            <h2 class="section-title centered reveal">Support Me</h2>
+            <div class="title-underline centered"></div>
+            <p class="section-subtitle reveal-delay">Show your appreciation with a tip</p>
+
+            <div class="tipping-content">
+                <!-- Tip Form -->
+                <div class="tip-form-container glass-panel reveal-delay-2">
+                    <h3>Send a Tip</h3>
+                    <form id="tip-form">
+                        <div class="form-group">
+                            <label for="tip-amount">Amount ($)</label>
+                            <input type="number" id="tip-amount" min="1" max="1000" step="0.01" placeholder="Enter amount" required>
+                            <p class="form-hint">Minimum: $1.00 | Maximum: $1,000.00</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="tip-message">Message (optional)</label>
+                            <textarea id="tip-message" rows="3" maxlength="500" placeholder="Say something nice..."></textarea>
+                            <p class="form-hint">Optional message to include with your tip</p>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-large">
+                            Send Tip via Stripe
+                        </button>
+                        <p class="paywall-note">Secure payment powered by Stripe</p>
+                    </form>
+                </div>
+
+                <!-- Recent Tippers -->
+                <div class="recent-tippers-container reveal-delay-3">
+                    <h3>Recent Supporters</h3>
+                    <p class="tippers-subtitle">Thank you to these amazing people!</p>
+                    <div id="recent-tippers-list" class="tippers-list">
+                        <!-- Loaded dynamically -->
+                        <div class="loading-tippers">Loading supporters...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 [MODEL_NAME] Inc. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact</a>
+                <a href="admin-login.php" class="admin-link">Admin Portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <button class="lightbox-close" id="lightbox-close">&times;</button>
+        <button class="lightbox-nav lightbox-prev" id="lightbox-prev">&#8249;</button>
+        <button class="lightbox-nav lightbox-next" id="lightbox-next">&#8250;</button>
+        <img src="" alt="" id="lightbox-image">
+    </div>
+
+    <!-- Main JavaScript -->
+    <script src="auth.js"></script>
+    <script src="tipping.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
